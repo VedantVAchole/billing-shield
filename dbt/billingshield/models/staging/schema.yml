@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: silver
+    database: raw
+    schema: silver
+    tables:
+      - name: cms_claims_features
+
+models:
+  - name: stg_cms_claims
+    description: "Staging model — 1:1 with silver features, clean column aliases"
+    columns:
+      - name: provider_id
+        tests:
+          - not_null
+      - name: procedure_code
+        tests:
+          - not_null
+      - name: place_of_service
+        tests:
+          - accepted_values:
+              values: ['F', 'O']
+
+  - name: fct_provider_risk
+    description: "Fact table — provider risk scores and tiers, feeds ML and dashboard"
+    columns:
+      - name: provider_id
+        tests:
+          - not_null
+          - unique
+      - name: risk_tier
+        tests:
+          - accepted_values:
+              values: ['Critical', 'Elevated', 'Normal']
